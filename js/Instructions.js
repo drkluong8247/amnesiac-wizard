@@ -35,12 +35,16 @@ function create() {
     this.buttonSound = this.game.add.audio('ding');
     
     var instructStyle = {font: "20px Arial", fill: "#ffffff", align: "left"};
-    this.instructText = this.game.add.text(600, 200, "", instructStyle);
-    this.instructText.setText("Player 1: WASD to move, Q to shoot, E to use special\nSkill: Multi-shot\n\nPlayer 2: IJKL to move, U to shoot, O to use special\nSkill: Surround Slash");
+    this.instructText = this.game.add.text(400, 100, "", instructStyle);
+    this.instructText.setText("Player 1: WASD to move, mouse to aim and shoot, and F to use skills.\nSkills:\n" +
+                             "Erupting Embers -- Shoot fire in all directions.\n" +
+                             "Lightning Lancer -- Shoot a piercing bolt of lightning\n" +
+                             "Blizzard Breeze -- Shoot a steady stream of icy wind\n" +
+                             "Heal -- it heals health");
     this.instructText.anchor.setTo(0.5, 0.5);
     
     // set up button sprite
-    this.enter = this.game.add.sprite(600, 600, 'enter');
+    this.enter = this.game.add.sprite(600, 500, 'enter');
     this.enter.scale.setTo(.5,.5);
     this.enter.anchor.setTo(.5,.5);
     this.enter.inputEnabled = true;
