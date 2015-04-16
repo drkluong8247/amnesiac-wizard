@@ -18,13 +18,18 @@ BasicGame.Game = function(game) {
     this.bolts = null;
     this.nextFire = null;
     this.fireRate = 300;
-    this.playerDmg = 5;
+    //this.playerDmg = 5;
     
     //related to player skills (advanced magic)
     this.skillSelect = 0;
     this.nextSkill = 0;
     this.skillCoolDown = 10000;
     this.fireballs = null;
+    this.thunders = null;
+    this.blizzardActive = false;
+    this.blizzardCount = 0;
+    this.blizzardDuration = 100;
+    this.icicles = null;
     
     //enemies
     this.enemies = null;
@@ -36,6 +41,7 @@ BasicGame.Game = function(game) {
     this.fx = null;
     this.music = null;
     this.burst = null;
+    this.shock = null;
     
     //controls the player's blank periods
     this.blank = true;
@@ -113,8 +119,30 @@ BasicGame.Game = function(game) {
             {
                 this.skill1();
             }
+            else if(number == 2)
+            {
+                this.skill2();
+            }
+            else if(number == 3)
+            {
+                this.skill3();
+            }
+            else
+            {
+                this.skill0();
+            }
         }
     };
+    
+    //skill 0 (heal)
+    this.skill0 = function()
+    {
+        this.health += 25;
+        if(this.health >= this.maxHealth)
+        {
+            this.health = this.maxHealth;
+        }
+    }
     
     //skill 1 (fire)
     this.skill1 = function()
@@ -185,7 +213,60 @@ BasicGame.Game = function(game) {
     //skill 2 (lightning)
     this.skill2 = function()
     {
+        var thunder = this.thunders.getFirstExists(false);
+        thunder.reset(this.player.x, this.player.y);
+        thunder.health = 10;
+        thunder.rotation = this.game.physics.arcade.moveToPointer(thunder, 1000, this.game.input.activePointer, 500);
+        thunder.body.velocity.x *= 3;
+        thunder.body.velocity.y *= 3;
+        thunder = this.thunders.getFirstExists(false);
+        thunder.reset(this.player.x-10, this.player.y-10);
+        thunder.health = 10;
+        thunder.rotation = this.game.physics.arcade.moveToPointer(thunder, 1000, this.game.input.activePointer, 500);
+        thunder.body.velocity.x *= 3;
+        thunder.body.velocity.y *= 3;
+        thunder = this.thunders.getFirstExists(false);
+        thunder.reset(this.player.x-10, this.player.y+10);
+        thunder.health = 10;
+        thunder.rotation = this.game.physics.arcade.moveToPointer(thunder, 1000, this.game.input.activePointer, 500);
+        thunder.body.velocity.x *= 3;
+        thunder.body.velocity.y *= 3;
+        vthunder = this.thunders.getFirstExists(false);
+        thunder.reset(this.player.x+10, this.player.y-10);
+        thunder.health = 10;
+        thunder.rotation = this.game.physics.arcade.moveToPointer(thunder, 1000, this.game.input.activePointer, 500);
+        thunder.body.velocity.x *= 3;
+        thunder.body.velocity.y *= 3;
+        thunder = this.thunders.getFirstExists(false);
+        thunder.reset(this.player.x+10, this.player.y+10);
+        thunder.health = 10;
+        thunder.rotation = this.game.physics.arcade.moveToPointer(thunder, 1000, this.game.input.activePointer, 500);
+        thunder.body.velocity.x *= 3;
+        thunder.body.velocity.y *= 3;
+        this.shock.play();
     };
+    
+    this.skill3 = function()
+    {
+        this.blizzardActive = true;
+    }
+    
+    this.blizzard = function()
+    {
+        this.blizzardCount++;
+        if(this.blizzardCount >= this.blizzardDuration)
+        {
+            this.blizzardActive = false;
+            this.blizzardCount = 0;
+        }
+        var icicle = this.icicles.getFirstExists(false);
+        icicle.reset(this.player.x, this.player.y);
+        icicle.health = 1;
+        icicle.rotation = this.game.physics.arcade.moveToPointer(icicle, 1000, this.game.input.activePointer, 500);
+        icicle.body.velocity.x += this.game.rnd.integer() % 70 - 35;
+        icicle.body.velocity.y += this.game.rnd.integer() % 70 - 35;
+        icicle.lifespan = 500;
+    }
     
     //initializes enemies
     this.createEnemies = function()
@@ -196,8 +277,8 @@ BasicGame.Game = function(game) {
             var enemy = this.enemies.create(0, 0, 'monster');
             enemy.anchor.setTo(0.5, 0.5);
             enemy.body.bounce.set(1);
-            enemy.body.velocity.x = game.rnd.integer() % 200 + 50;
-            enemy.body.velocity.y = game.rnd.integer() % 200 + 50;
+            enemy.body.velocity.x = this.game.rnd.integer() % 200 + 50;
+            enemy.body.velocity.y = this.game.rnd.integer() % 200 + 50;
             enemy.body.collideWorldBounds = true;
             enemy.health = 10;
         }
@@ -238,6 +319,7 @@ BasicGame.Game = function(game) {
             player.kill();
             this.gameOver();
         }
+        this.revive(enemy);
     }
     
     this.damageEnemy = function(bolt, enemy)
@@ -250,6 +332,7 @@ BasicGame.Game = function(game) {
         {
             enemy.kill();
             this.score += 20;
+            this.revive(enemy);
         }
     }
     
@@ -316,6 +399,24 @@ function create() {
     this.fireballs.setAll('outOfBoundsKill', true);
     this.fireballs.setAll('checkWorldBounds', true);
     
+    this.thunders = this.game.add.group();
+    this.thunders.enableBody = true;
+    this.thunders.physicsBodyType = Phaser.Physics.ARCADE;
+    this.thunders.createMultiple(30, 'lightning', 0, false);
+    this.thunders.setAll('anchor.x', 0.5);
+    this.thunders.setAll('anchor.y', 0.5);
+    this.thunders.setAll('outOfBoundsKill', true);
+    this.thunders.setAll('checkWorldBounds', true);
+    
+    this.icicles = this.game.add.group();
+    this.icicles.enableBody = true;
+    this.icicles.physicsBodyType = Phaser.Physics.ARCADE;
+    this.icicles.createMultiple(100, 'ice', 0, false);
+    this.icicles.setAll('anchor.x', 0.5);
+    this.icicles.setAll('anchor.y', 0.5);
+    this.icicles.setAll('outOfBoundsKill', true);
+    this.icicles.setAll('checkWorldBounds', true);
+    
     //enemies
     this.enemies = this.game.add.group();
     this.enemies.enableBody = true;
@@ -325,6 +426,7 @@ function create() {
     //sound
     this.fx = this.game.add.audio('castSound');
     this.burst = this.game.add.audio('boomSound');
+    this.shock = this.game.add.audio('zapSound');
     this.music = this.game.add.audio('backgroundMusic', 1, true);
     this.music.play('', 0, 1, true);
     
@@ -340,7 +442,7 @@ function create() {
     this.blankIndicator.anchor.setTo(0.5, 0.5);
     
     //sets skills
-    this.skillSelect = 1;
+    this.skillSelect = 3;
     
     //animating purposes
     this.playerFlash = this.game.add.sprite( -200, -200, 'wizardflash');
@@ -360,7 +462,15 @@ function update(){
     //check collision
     this.game.physics.arcade.overlap(this.bolts, this.enemies, this.damageEnemy, null, this);
     this.game.physics.arcade.overlap(this.fireballs, this.enemies, this.damageEnemy, null, this);
+    this.game.physics.arcade.overlap(this.thunders, this.enemies, this.damageEnemy, null, this);
+    this.game.physics.arcade.overlap(this.icicles, this.enemies, this.damageEnemy, null, this);
     this.game.physics.arcade.overlap(this.enemies, this.player, this.monsterHandler, null, this);
+    
+    //blizzard skill
+    if(this.blizzardActive)
+    {
+        this.blizzard();
+    }
 }
 
 function render()
@@ -375,5 +485,17 @@ function render()
     else if(this.skillSelect == 1)
     {
         this.game.debug.text('Skill: Erupting Embers', 350, 570);
+    }
+    else if(this.skillSelect == 2)
+    {
+        this.game.debug.text('Skill: Lightning Lancer', 350, 570);
+    }
+    else if(this.skillSelect == 3)
+    {
+        this.game.debug.text('Skill: Blizzard Breeze', 350, 570);
+    }
+    else
+    {
+        this.game.debug.text('Skill: Heal', 350, 570);
     }
 }

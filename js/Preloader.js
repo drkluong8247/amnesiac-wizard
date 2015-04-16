@@ -33,6 +33,8 @@ function preload() {
     this.game.load.image( 'sword', 'assets/images/Sword.png');
     this.game.load.image( 'not', 'assets/images/Not.png');
     this.game.load.image( 'fire', 'assets/images/Firebolt.png'); 
+    this.game.load.image( 'lightning', 'assets/images/Lightning.png');
+    this.game.load.image( 'ice', 'assets/images/Snow.png'); 
     
     //for pseudo-animaton purposes
     this.game.load.image( 'wizardflash', 'assets/images/MageFlash.png');
@@ -43,7 +45,7 @@ function preload() {
     this.game.load.audio( 'boomSound', 'assets/audio/explode.wav');
     this.game.load.audio( 'backgroundMusic', 'assets/audio/AnimalCrossing-TownHall.ogg');
     this.game.load.audio( 'ding', 'assets/audio/coincollect.ogg');
-    
+    this.game.load.audio( 'zapSound', 'assets/audio/zap.wav');
 }
 
 function create() {
